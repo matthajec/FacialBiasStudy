@@ -94,8 +94,8 @@
   <p>(<span id="count"></span>/<span id="max"></span>)</p>
 
   <div id="img-container">
-    <img id="face-left" src="http://localhost:3000/faces/2.jpg" />
-    <img id="face-right" src="http://localhost:3000/faces/1.jpg" />
+    <img id="face-left" src="" />
+    <img id="face-right" src="" />
   </div>
 </body>
 
@@ -105,7 +105,7 @@
   document.getElementById('count').textContent = "1"
   document.getElementById('max').textContent = rounds
 
-  fetch('http://localhost:3000/image_count')
+  fetch(location + 'image_count')
     .then(res => res.json())
     .then(json => {
       const game = new Game(json.count, rounds)
@@ -162,7 +162,7 @@
         results: this.results
       })
 
-      fetch('http://localhost:3000/submit', {
+      fetch(location + 'submit', {
         method: "POST",
         headers: {
           'Content-Type': 'application/json'
@@ -185,8 +185,8 @@
       this.leftId = newLeftId;
       this.rightId = newRightId
 
-      this.leftImage.src = `http://localhost:3000/faces/${newLeftId}.jpg`;
-      this.rightImage.src = `http://localhost:3000/faces/${newRightId}.jpg`;
+      this.leftImage.src = `${location}faces/${newLeftId}.jpg`;
+      this.rightImage.src = `${location}faces/${newRightId}.jpg`;
     }
   }
 
