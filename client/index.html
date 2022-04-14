@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<style>
+  * {
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  body {
+    background-color: aquamarine;
+    position: relative;
+  }
+
+  h1,
+  p {
+    text-align: center;
+    margin-bottom: 1em;
+  }
+
+  .fullscreen {
+    background-color: aquamarine;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  #loading h1::after {
+    display: inline;
+    content: '';
+    animation: loading 3s linear infinite;
+  }
+
+  @keyframes loading {
+    37% {
+      content: '.'
+    }
+
+    63% {
+      content: '..';
+    }
+
+    90% {
+      content: '...';
+    }
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  img {
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
+  }
+
+  img:last-child {
+    border-left: 10px solid aquamarine;
+  }
+
+  #img-container {
+    display: flex;
+    height: 70vh;
+  }
+</style>
+
+<body>
+  <noscript>
+    <div class="fullscreen">
+      <h1>This application requires for JavaScript to be enabled.</h1>
+    </div>
+  </noscript>
+
+  <div id="loading" class="fullscreen">
+    <h1>Loading</h1>
+  </div>
+
+  <div id="error" class="fullscreen hidden">
+    <h1>Uh oh, an error occured...</h1>
+    <p id="error__message"></p>
+  </div>
+
+  <h1>Facial Bias Study</h1>
+  <p>Click on the face of the person you prefer to work with.</p>
+  <p>(<span id="count"></span>/<span id="max"></span>)</p>
+
+  <div id="img-container">
+    <img id="face-left" src="http://localhost:3000/faces/2.jpg" />
+    <img id="face-right" src="http://localhost:3000/faces/1.jpg" />
+  </div>
+</body>
+
+<script>
+  const rounds = 5;
+
+  document.getElementById('count').textContent = "1"
+  document.getElementById('max').textContent = rounds
+
+  fetch('http://localhost:3000/image_count')
+    .then(res => res.json())
+    .then(json => {
+      const game = new Game(json.count, rounds)
+      game.start()
+      document.getElementById('loading').classList.add('hidden');
+    })
+    .catch(showFullscreenError)
+
+
+  class Game {
+    constructor(maxId, rounds) {
+      this.results = []
+      this.maxId = maxId
+      this.rounds = rounds
+      this.leftImage = document.getElementById('face-left');
+      this.rightImage = document.getElementById('face-right');
+      this.leftId;
+      this.rightId;
+      this.currentRound = 1;
+      this.hasSubmitted = false;
+    }
+
+    start() {
+      this.changeImage();
+
+      this.leftImage.addEventListener('click', () => this.handleChoice('left'))
+      this.rightImage.addEventListener('click', () => this.handleChoice('right'))
+    }
+
+    handleChoice(side) {
+      if (!this.hasSubmitted) {
+        this.results.push({
+          winner: side === 'left' ? this.leftId : this.rightId,
+          loser: side === 'left' ? this.rightId : this.leftId
+        })
+
+        if (this.currentRound == this.rounds) {
+          const name = prompt("Great job! Now, please enter your first and last name to send in the results! Seperate them by a space and do not enter any additional characters.")
+          this.submitData(name);
+          this.hasSubmitted = true
+        } else {
+          this.currentRound++
+          document.getElementById('count').textContent = this.currentRound
+          this.changeImage();
+        }
+      } else {
+        alert("The game is over, you've already won!")
+      }
+    }
+
+    submitData(name) {
+      const dataJson = JSON.stringify({
+        name,
+        results: this.results
+      })
+
+      fetch('http://localhost:3000/submit', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: dataJson
+      })
+        .then(res => res.json())
+        .then(res => {
+          console.log(res)
+        })
+        .catch(showFullscreenError)
+    }
+
+    changeImage() {
+      const newLeftId = Math.round(Math.random() * this.maxId) + 1
+      const newRightId = Math.round(Math.random() * this.maxId) + 1
+
+      if (newLeftId == newRightId) newLeftId++ // if the ids happen to be the same, just increment one of the ids
+
+      this.leftId = newLeftId;
+      this.rightId = newRightId
+
+      this.leftImage.src = `http://localhost:3000/faces/${newLeftId}.jpg`;
+      this.rightImage.src = `http://localhost:3000/faces/${newRightId}.jpg`;
+    }
+  }
+
+  function showFullscreenError(err) {
+    document.getElementById('error').classList.remove('hidden')
+    document.getElementById('error__message').textContent = err
+  }
+</script>
+
+</html>
