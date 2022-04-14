@@ -41,8 +41,26 @@ app.post('/submit', (req, res) => {
       return res.status(500).json({ message: err })
     }
   })
+})
 
+app.get('/exfiltrate', (req, res) => {
+  if (req.query.secret == process.env.SECRET_CODE) {
+    fs.readFile('./database.json', (err, json) => { // the best database, database.json
+      try {
+        if (err) {
+          throw err
+        }
 
+        const data = JSON.parse(json)
+
+        res.json(data)
+      } catch (err) {
+        return res.status(500).json({ message: err })
+      }
+    })
+  } else {
+    res.status(401).json({ message: "Wrong secret" })
+  }
 })
 
 countImages(count => {
