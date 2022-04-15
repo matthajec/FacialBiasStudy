@@ -33,7 +33,7 @@ app.post('/submit', (req, res) => {
 
       data.push({
         name: req.body.name,
-        results: req.body.results.slice(0, 4)
+        results: req.body.results.slice(0, 19)
       })
 
       fs.writeFile('./database.json', JSON.stringify(data), new Function)
