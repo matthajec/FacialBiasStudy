@@ -143,8 +143,7 @@
         })
 
         if (this.currentRound == this.rounds) {
-          const name = prompt("Great job! Now, please enter your first and last name to send in the results! Seperate them by a space and do not enter any additional characters.")
-          this.submitData(name);
+          this.submitData();
           this.hasSubmitted = true
         } else {
           this.currentRound++
@@ -156,11 +155,20 @@
       }
     }
 
-    submitData(name) {
+    submitData() {
+      alert("Thank you! Now, please fill out some information so the follow up can be done.")
+      const email = prompt("Please enter your email")
+      const pin = prompt("Please enter a 4 digit PIN (4 digits!), this will be used for the follow up so remember it.")
+      const age = parseInt(prompt("What is your age (enter 0 if you'd prefer not to answer)"))
+
       const dataJson = JSON.stringify({
-        name,
-        results: this.results
+        email,
+        pin,
+        age,
+        answers: this.results
       })
+
+      let statCode = 0;
 
       fetch(location + 'submit', {
         method: "POST",
@@ -169,9 +177,16 @@
         },
         body: dataJson
       })
-        .then(res => res.json())
         .then(res => {
-          console.log(res)
+          statCode = res.status
+          return res.json()
+        })
+        .then(res => {
+          if (statCode === 400) {
+            alert(res.message + "\n Please Try Again")
+            this.submitData()
+          }
+          console.log(res.status)
         })
         .catch(showFullscreenError)
     }

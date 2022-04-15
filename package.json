@@ -1,13 +1,13 @@
 {
   "dependencies": {
-    "ejs": "^3.1.6",
-    "express": "^4.17.3"
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mongoose": "^6.3.0"
   },
   "name": "facialbiasstudy",
   "description": "Facial Bias Study is a full stack web application allowing for collection of data relating to facial bias. It uses [this](https://www.kaggle.com/datasets/jessicali9530/lfw-dataset) dataset.",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "start": "node index.js"
   },
