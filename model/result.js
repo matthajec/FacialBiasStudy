@@ -9,6 +9,8 @@ const resultSchema = new Schema({
     winner: Number,
     loser: Number
   }]
+}, {
+  timestamps: true
 })
 
 module.exports = mongoose.model('Result', resultSchema)
